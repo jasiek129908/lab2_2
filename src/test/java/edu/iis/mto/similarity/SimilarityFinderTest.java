@@ -57,8 +57,7 @@ class SimilarityFinderTest {
                 } else if (elem == 2) {
                     searchResult = SearchResult.builder().withPosition(1).withFound(false)
                             .build();
-                }
-                else if (elem == 4){
+                } else if (elem == 4) {
                     searchResult = SearchResult.builder().withPosition(2).withFound(false)
                             .build();
                 }
@@ -83,8 +82,7 @@ class SimilarityFinderTest {
                 } else if (elem == 2) {
                     searchResult = SearchResult.builder().withPosition(1).withFound(true)
                             .build();
-                }
-                else if (elem == 5){
+                } else if (elem == 5) {
                     searchResult = SearchResult.builder().withPosition(2).withFound(true)
                             .build();
                 }
@@ -94,6 +92,31 @@ class SimilarityFinderTest {
         int tab[] = {1, 2, 5};
         int tab2[] = {1, 2, 5};
         double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
-        Assertions.assertEquals(1 , result);
+        Assertions.assertEquals(1, result);
+    }
+
+    @Test
+    void testSequencesAreTotallyDifferent() {
+        SimilarityFinder similarityFinder = new SimilarityFinder(new SequenceSearcher() {
+            @Override
+            public SearchResult search(int elem, int[] sequence) {
+                SearchResult searchResult = null;
+                if (elem == 3) {
+                    searchResult = SearchResult.builder().withPosition(0).withFound(false)
+                            .build();
+                } else if (elem == 4) {
+                    searchResult = SearchResult.builder().withPosition(1).withFound(false)
+                            .build();
+                } else if (elem == 5) {
+                    searchResult = SearchResult.builder().withPosition(2).withFound(false)
+                            .build();
+                }
+                return searchResult;
+            }
+        });
+        int tab[] = {3, 4, 5};
+        int tab2[] = {1, 2};
+        double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
+        Assertions.assertEquals(0, result);
     }
 }
