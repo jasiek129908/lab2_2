@@ -70,4 +70,30 @@ class SimilarityFinderTest {
         double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
         Assertions.assertEquals(1 / 4.0, result);
     }
+
+    @Test
+    void testSequencesAreTheSame() {
+        SimilarityFinder similarityFinder = new SimilarityFinder(new SequenceSearcher() {
+            @Override
+            public SearchResult search(int elem, int[] sequence) {
+                SearchResult searchResult = null;
+                if (elem == 1) {
+                    searchResult = SearchResult.builder().withPosition(0).withFound(true)
+                            .build();
+                } else if (elem == 2) {
+                    searchResult = SearchResult.builder().withPosition(1).withFound(true)
+                            .build();
+                }
+                else if (elem == 5){
+                    searchResult = SearchResult.builder().withPosition(2).withFound(true)
+                            .build();
+                }
+                return searchResult;
+            }
+        });
+        int tab[] = {1, 2, 5};
+        int tab2[] = {1, 2, 5};
+        double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
+        Assertions.assertEquals(1 , result);
+    }
 }
