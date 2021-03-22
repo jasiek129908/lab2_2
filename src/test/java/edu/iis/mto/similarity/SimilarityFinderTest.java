@@ -33,7 +33,7 @@ class SimilarityFinderTest {
                     searchResult = SearchResult.builder().withPosition(0).withFound(true)
                             .build();
                 } else if (elem == 2) {
-                    searchResult = SearchResult.builder().withPosition(0).withFound(false)
+                    searchResult = SearchResult.builder().withPosition(1).withFound(false)
                             .build();
                 }
                 return searchResult;
@@ -43,5 +43,31 @@ class SimilarityFinderTest {
         int tab2[] = {1, 3};
         double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
         Assertions.assertEquals(1 / 3.0, result);
+    }
+
+    @Test
+    void testCorrectResultWithSequencesOfNotEqualLength() {
+        SimilarityFinder similarityFinder = new SimilarityFinder(new SequenceSearcher() {
+            @Override
+            public SearchResult search(int elem, int[] sequence) {
+                SearchResult searchResult = null;
+                if (elem == 1) {
+                    searchResult = SearchResult.builder().withPosition(0).withFound(true)
+                            .build();
+                } else if (elem == 2) {
+                    searchResult = SearchResult.builder().withPosition(1).withFound(false)
+                            .build();
+                }
+                else if (elem == 4){
+                    searchResult = SearchResult.builder().withPosition(2).withFound(false)
+                            .build();
+                }
+                return searchResult;
+            }
+        });
+        int tab[] = {1, 2, 4};
+        int tab2[] = {1, 3};
+        double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
+        Assertions.assertEquals(1 / 4.0, result);
     }
 }
