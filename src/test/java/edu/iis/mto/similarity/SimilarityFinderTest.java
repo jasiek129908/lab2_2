@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 class SimilarityFinderTest {
 
@@ -144,5 +148,40 @@ class SimilarityFinderTest {
         invokesTimesField.setAccessible(true);
 
         Assertions.assertEquals(3, invokesTimesField.getInt(sequenceSearcher));
+    }
+
+    @Test
+    void testIfPassedArgumentsAreTheSequences() throws NoSuchFieldException, IllegalAccessException {
+        SequenceSearcher sequenceSearcher = new SequenceSearcher() {
+            private List<Integer> seq1 = new ArrayList<>();
+            private List<Integer> seq2 = new ArrayList<>();
+
+            @Override
+            public SearchResult search(int elem, int[] sequence) {
+                seq1.add(elem);
+                if (seq2.size() == 0) {
+                    seq2.addAll(Arrays.stream(sequence)
+                            .boxed()
+                            .collect(Collectors.toList()));
+                }
+                SearchResult searchResult = SearchResult.builder().withFound(true).build();
+                return searchResult;
+            }
+        };
+        SimilarityFinder similarityFinder = new SimilarityFinder(sequenceSearcher);
+
+        int tab[] = {3, 4, 5};
+        int tab2[] = {1, 2};
+        similarityFinder.calculateJackardSimilarity(tab, tab2);
+
+        Field seq1Field = sequenceSearcher.getClass().getDeclaredField("seq1");
+        seq1Field.setAccessible(true);
+        Field seq2Field = sequenceSearcher.getClass().getDeclaredField("seq2");
+        seq2Field.setAccessible(true);
+        List<Integer> seq1 = (List<Integer>) seq1Field.get(sequenceSearcher);
+        List<Integer> seq2 = (List<Integer>) seq2Field.get(sequenceSearcher);
+
+        Assertions.assertArrayEquals(seq1.stream().mapToInt(Integer::intValue).toArray(), tab);
+        Assertions.assertArrayEquals(seq2.stream().mapToInt(Integer::intValue).toArray(), tab2);
     }
 }
