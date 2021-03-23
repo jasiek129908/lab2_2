@@ -7,6 +7,8 @@ import edu.iis.mto.searcher.SequenceSearcher;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+
 class SimilarityFinderTest {
 
     @Test
@@ -118,5 +120,29 @@ class SimilarityFinderTest {
         int tab2[] = {1, 2};
         double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
         Assertions.assertEquals(0, result);
+    }
+
+    @Test
+    void testThatInvokesMethodThreeTimes() throws NoSuchFieldException, IllegalAccessException {
+        SequenceSearcher sequenceSearcher = new SequenceSearcher() {
+            private int invokesTimes = 0;
+
+            @Override
+            public SearchResult search(int elem, int[] sequence) {
+                invokesTimes++;
+                SearchResult searchResult = SearchResult.builder().withFound(true).build();
+                return searchResult;
+            }
+        };
+        SimilarityFinder similarityFinder = new SimilarityFinder(sequenceSearcher);
+
+        int tab[] = {3, 4, 5};
+        int tab2[] = {1, 2};
+        double result = similarityFinder.calculateJackardSimilarity(tab, tab2);
+
+        Field invokesTimesField = sequenceSearcher.getClass().getDeclaredField("invokesTimes");
+        invokesTimesField.setAccessible(true);
+
+        Assertions.assertEquals(3, invokesTimesField.getInt(sequenceSearcher));
     }
 }
